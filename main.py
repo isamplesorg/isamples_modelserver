@@ -2,6 +2,8 @@ from typing import Optional
 
 import fastapi
 import logging
+
+import fasttext
 import uvicorn
 from fastapi import HTTPException
 
@@ -37,6 +39,7 @@ def sesar(type: Optional[ISBModelType] = None) -> str:
 
 @app.get("/smithsonian", name="Smithsonian Model Invocation")
 def smithsonian(type: Optional[ISBModelType] = None) -> str:
+    fasttext.load_model("")
     if type == ISBModelType.CONTEXT:
         return "context"
     else:
