@@ -3,8 +3,9 @@ name = "isamples-modelserver"
 version = "0.1.0"
 description = "iSamples Model Server is a REST endpoint for invoking iSamples ML models"
 authors = ["Danny Mandel <danny.mandel@gmail.com>"]
+license = "Apache 2.0"
 readme = "README.md"
-packages = [{include = "isamples_modelserver"}]
+packages = []
 
 [tool.poetry.dependencies]
 python = "^3.9"
