@@ -5,7 +5,9 @@ description = "iSamples Model Server is a REST endpoint for invoking iSamples ML
 authors = ["Danny Mandel <danny.mandel@gmail.com>"]
 license = "Apache 2.0"
 readme = "README.md"
-packages = []
+[
+    { include = "isamples_metadata"},
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -13,6 +15,7 @@ fastapi = "^0.100.0"
 torchvision = "^0.15.2"
 uvicorn = "^0.23.1"
 fasttext-wheel = "^0.9.2"
+transformers = "^4.31.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
