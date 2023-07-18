@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "isamples-modelserver"
+version = "0.1.0"
+description = "iSamples Model Server is a REST endpoint for invoking iSamples ML models"
+authors = ["Danny Mandel <danny.mandel@gmail.com>"]
+readme = "README.md"
+packages = [{include = "isamples_modelserver"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.100.0"
+torchvision = "^0.15.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
