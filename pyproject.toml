@@ -5,7 +5,7 @@ description = "iSamples Model Server is a REST endpoint for invoking iSamples ML
 authors = ["Danny Mandel <danny.mandel@gmail.com>"]
 license = "Apache 2.0"
 readme = "README.md"
-[
+packages = [
     { include = "isamples_metadata"},
 ]
 
