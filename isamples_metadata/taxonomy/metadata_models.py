@@ -6,8 +6,7 @@ from functools import cache
 from typing import Tuple, Optional, List
 
 from isamples_metadata.metadata_exceptions import TestRecordException, SESARSampleTypeException
-import config
-
+from isamples_metadata.taxonomy import config
 from isamples_metadata.taxonomy.Model import Model
 from isamples_metadata.taxonomy.SESARClassifierInput import SESARClassifierInput
 from isamples_metadata.taxonomy.OpenContextClassifierInput import OpenContextClassifierInput
