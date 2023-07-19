@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+    isamples_modelserver:
+        build:
+            context: .
+        ports:
+            # In the Docker network, start on 8000 and map that to the external port specified in the environment file
+            - "8000:8000"
+        volumes:
+            - metadata_models:/app/metadata_models
+
+volumes:
+    metadata_models:
+        name: metadata_models
