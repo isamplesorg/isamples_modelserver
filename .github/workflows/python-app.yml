@@ -47,9 +47,11 @@
          pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118	   
      - name: Install dependencies
        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-       run: poetry install --no-interaction --no-root
-     - name: Install
-       run: poetry install --no-interaction
+       run: |
+         source ./.venv/bin/activate
+         pip install -f requirements.txt
+     # - name: Install
+     #   run: poetry install --no-interaction
      - name: Test with pytest
        working-directory: ./tests
        run: |
