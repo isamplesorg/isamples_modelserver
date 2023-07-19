@@ -48,12 +48,7 @@
        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
        run: |
          source ./.venv/bin/activate
-         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118	   
-     # - name: Install dependencies
-     #   if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-     #   run: |
-     #     source ./.venv/bin/activate
-     #     pip install -r requirements.txt
+         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
      - name: Test with pytest
        working-directory: ./tests
        run: |
