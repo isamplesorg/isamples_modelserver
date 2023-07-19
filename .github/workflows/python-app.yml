@@ -41,17 +41,19 @@
          key: venv-${{ runner.os }}-#{{ hashFiles('**/poetry.lock') }}
      - name: install pip
        run: poetry run python -m pip install --upgrade pip
+     - name: Install
+       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+       run: poetry install --no-interaction	   
      - name: Manually install torch things to try and get libcuda
-       run: |
-         source ./.venv/bin/activate
-         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118	   
-     - name: Install dependencies
        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
        run: |
          source ./.venv/bin/activate
-         pip install -r requirements.txt
-     # - name: Install
-     #   run: poetry install --no-interaction
+         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118	   
+     # - name: Install dependencies
+     #   if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+     #   run: |
+     #     source ./.venv/bin/activate
+     #     pip install -r requirements.txt
      - name: Test with pytest
        working-directory: ./tests
        run: |
