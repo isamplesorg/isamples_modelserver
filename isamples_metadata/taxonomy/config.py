@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     opencontext_sample_model_path: str = "UNSET"
     opencontext_sample_config_path: str = "UNSET"
 
-
     class Config:
         env_file = "isamples_modelserver.env"
         case_sensitive = False
