@@ -11,7 +11,7 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-COPY isamples_metadata .
+COPY isamples_metadata /app/isamples_metadata
 COPY ./main.py .
 COPY ./enums.py .
 

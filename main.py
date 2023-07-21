@@ -3,11 +3,11 @@ from typing import Optional
 import fastapi
 import logging
 
-import fasttext
 import uvicorn
 from fastapi import HTTPException
 
 from enums import ISBModelType
+from isamples_metadata.taxonomy.isamplesfasttext import SMITHSONIAN_FEATURE_PREDICTOR
 
 app = fastapi.FastAPI()
 
@@ -38,10 +38,18 @@ def sesar(type: Optional[ISBModelType] = None) -> str:
 
 
 @app.get("/smithsonian", name="Smithsonian Model Invocation")
-def smithsonian(type: Optional[ISBModelType] = None) -> str:
-    fasttext.load_model("")
+def smithsonian(type: Optional[ISBModelType] = None, input: str = None) -> str:
+    """
+    Predicts Smithsonian context value using the FastText model
+    :param type: The type of value to predict, only valid value for Smithsonian is CONTEXT
+    :param input: Comma-separated string of input parameters
+    :return: The prediction result from the Smithsonian-trained FastText model
+    """
+    if input is None:
+        raise HTTPException(500, "Input parameter is required.")
     if type == ISBModelType.CONTEXT:
-        return "context"
+        categories = SMITHSONIAN_FEATURE_PREDICTOR.predict_sampled_feature(input.split(","))
+        return categories
     else:
         raise HTTPException(500, "Unable to serve specified model type. The only valid type is 'context'.")
 
