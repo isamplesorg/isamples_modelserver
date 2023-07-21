@@ -38,7 +38,7 @@ def sesar(type: Optional[ISBModelType] = None) -> str:
 
 
 @app.get("/smithsonian", name="Smithsonian Model Invocation")
-def smithsonian(type: Optional[ISBModelType] = None, input: str = None) -> str:
+def smithsonian(type: Optional[ISBModelType] = None, input: Optional[str] = None) -> str:
     """
     Predicts Smithsonian context value using the FastText model
     :param type: The type of value to predict, only valid value for Smithsonian is CONTEXT
