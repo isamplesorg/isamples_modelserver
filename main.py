@@ -1,5 +1,3 @@
-from typing import Optional
-
 import fastapi
 import logging
 
@@ -17,6 +15,7 @@ from isamples_metadata.taxonomy.metadata_models import (
     OpenContextSamplePredictor,
     OpenContextMaterialPredictor,
     SESARMaterialPredictor,
+    SampledFeaturePredictor,
 )
 
 app = fastapi.FastAPI()
@@ -40,6 +39,10 @@ def get_opencontext_material_type_predictor() -> MaterialTypePredictor:
 def get_sesar_material_type_predictor() -> MaterialTypePredictor:
     sesar_model = MetadataModelLoader.get_sesar_material_model()
     return SESARMaterialPredictor(sesar_model)
+
+
+def get_smithsonian_sampled_feature_predictor() -> SampledFeaturePredictor:
+    return SMITHSONIAN_FEATURE_PREDICTOR
 
 
 class PredictParams(BaseModel):
@@ -84,9 +87,17 @@ def sesar(
         )
 
 
-@app.get("/smithsonian", name="Smithsonian Model Invocation")
+class SampledFeatureParams(BaseModel):
+    input: list[str]
+    type: ISBModelType
+
+
+@app.post("/smithsonian", name="Smithsonian Model Invocation")
 def smithsonian(
-    type: Optional[ISBModelType] = None, input: Optional[str] = None
+    params: SampledFeatureParams,
+    sampled_feature_predictor: SampledFeaturePredictor = Depends(
+        get_smithsonian_sampled_feature_predictor
+    ),
 ) -> str:
     """
     Predicts Smithsonian context value using the FastText model
@@ -94,13 +105,10 @@ def smithsonian(
     :param input: Comma-separated string of input parameters
     :return: The prediction result from the Smithsonian-trained FastText model
     """
-    if input is None:
+    if params.input is None:
         raise HTTPException(500, "Input parameter is required.")
-    if type == ISBModelType.CONTEXT:
-        categories = SMITHSONIAN_FEATURE_PREDICTOR.predict_sampled_feature(
-            input.split(",")
-        )
-        return categories
+    if params.type == ISBModelType.CONTEXT:
+        return sampled_feature_predictor.predict_sampled_feature(params.input)
     else:
         raise HTTPException(
             500,

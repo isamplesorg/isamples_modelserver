@@ -37,6 +37,11 @@ class MaterialTypePredictor(Protocol):
         return []
 
 
+class SampledFeaturePredictor(Protocol):
+    def predict_sampled_feature(self, context: List[str]) -> str:
+        return ""
+
+
 class MetadataModelLoader:
     """Class that instantiates the pretrained models"""
 
