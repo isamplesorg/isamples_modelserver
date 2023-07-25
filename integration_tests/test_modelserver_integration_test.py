@@ -46,6 +46,7 @@ class ModelServerClient:
         params: dict = {"source_record": source_record, "type": "material"}
         return self._make_json_request(url, rsession, params)
 
+
 def _post_opencontext_material(
     rsession: requests.Session,
     hostname: str,
