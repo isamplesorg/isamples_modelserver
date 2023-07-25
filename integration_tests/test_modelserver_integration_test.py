@@ -1,3 +1,5 @@
+from typing import Any
+
 import requests
 import pytest
 import os
@@ -25,17 +27,32 @@ def headers():
     return {"accept": "application/json", "User-Agent": "iSamples Integration Bot 2000"}
 
 
+class ModelServerClient:
+    base_url: str
+    base_headers: dict
+
+    def __init__(self, base_url: str, base_headers: dict = {}):
+        self.base_url = base_url
+        self.base_headers = base_headers
+
+    def _make_json_request(self, url: str, rsession: requests.Session, data_params: dict) -> Any:
+        data_params_bytes: bytes = json.dumps(data_params).encode("utf-8")
+        res = rsession.post(url, headers=self.base_headers, data=data_params_bytes)
+        response_dict = res.json()
+        return response_dict
+
+    def make_opencontext_material_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> Any:
+        url = f"{self.base_url}opencontext/"
+        params: dict = {"source_record": source_record, "type": "material"}
+        return self._make_json_request(url, rsession, params)
+
 def _post_opencontext_material(
     rsession: requests.Session,
     hostname: str,
     headers: dict
 ) -> list:
-    url = f"{hostname}opencontext/"
-    params: dict = {"source_record": {"foo": "bar"}, "type": "material"}
-    data_params = json.dumps(params).encode("utf-8")
-    res = rsession.post(url, headers=headers, data=data_params)
-    response_dict = res.json()
-    return response_dict
+    client = ModelServerClient(hostname, headers)
+    return client.make_opencontext_material_request({"foo": "bar"}, rsession)
 
 
 def test_opencontext_material(
