@@ -20,35 +20,35 @@ class SESARClassifierInput(ClassifierInput):
         "IEHS1",
         "HSU",
         "IECAO",
-        "IESBC"
+        "IESBC",
     ]
 
     # material related words
     SESAR_CV_words = [
-        'anthropogenic',
-        'biogenic',
-        'dispersed',
-        'fluid',
-        'frozen',
-        'gaseous',
-        'ice',
-        'liquid',
-        'material',
-        'media',
-        'metal',
-        'mineral',
-        'mixed',
-        'natural',
-        'non-aqueous',
-        'non-organic',
-        'organic',
-        'particulate',
-        'rock',
-        'sediment',
-        'soil',
-        'soil,',
-        'solid',
-        'water'
+        "anthropogenic",
+        "biogenic",
+        "dispersed",
+        "fluid",
+        "frozen",
+        "gaseous",
+        "ice",
+        "liquid",
+        "material",
+        "media",
+        "metal",
+        "mineral",
+        "mixed",
+        "natural",
+        "non-aqueous",
+        "non-organic",
+        "organic",
+        "particulate",
+        "rock",
+        "sediment",
+        "soil",
+        "soil,",
+        "solid",
+        "water",
     ]
 
     # SESAR source labels to CV mapping
@@ -121,10 +121,16 @@ class SESARClassifierInput(ClassifierInput):
         # define the informative fields to extract
         description_field = {
             "supplementMetadata": [
-                "geologicalAge", "classificationComment",
-                "purpose", "primaryLocationType", "geologicalUnit",
-                "locality", "localityDescription", "fieldName",
-                "purpose", "cruiseFieldPrgrm",
+                "geologicalAge",
+                "classificationComment",
+                "purpose",
+                "primaryLocationType",
+                "geologicalUnit",
+                "locality",
+                "localityDescription",
+                "fieldName",
+                "purpose",
+                "cruiseFieldPrgrm",
             ],
             "igsnPrefix": [],
             "collectionMethod": [],
@@ -151,8 +157,7 @@ class SESARClassifierInput(ClassifierInput):
                 else:
                     for sub_key in value:
                         if sub_key in description_field[key]:
-                            description_map[key + "_" + sub_key] = \
-                                value[sub_key]
+                            description_map[key + "_" + sub_key] = value[sub_key]
 
         # build the concatenated text from the description_map
         self.material_text = self.build_text(description_map, "material", field_order)

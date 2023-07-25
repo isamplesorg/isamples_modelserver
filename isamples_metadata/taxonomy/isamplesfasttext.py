@@ -30,9 +30,7 @@ class SampledFeaturePredictor:
         self._model = model
         self._model_valid = model is not None
 
-    def predict_sampled_feature(
-        self, context: typing.List[str]
-    ) -> str:
+    def predict_sampled_feature(self, context: typing.List[str]) -> str:
         """
         Invoke the pre-trained fasttext model to predict the sampledFeature label for the specified string inputs.
         Prerequisite: In order to use this, make sure that there is a pydantic settings file on the

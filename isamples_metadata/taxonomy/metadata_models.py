@@ -7,11 +7,16 @@ from typing import Tuple, Optional, List, Protocol
 
 from pydantic import BaseModel
 
-from isamples_metadata.metadata_exceptions import TestRecordException, SESARSampleTypeException
+from isamples_metadata.metadata_exceptions import (
+    TestRecordException,
+    SESARSampleTypeException,
+)
 from isamples_metadata.taxonomy import config
 from isamples_metadata.taxonomy.Model import Model
 from isamples_metadata.taxonomy.SESARClassifierInput import SESARClassifierInput
-from isamples_metadata.taxonomy.OpenContextClassifierInput import OpenContextClassifierInput
+from isamples_metadata.taxonomy.OpenContextClassifierInput import (
+    OpenContextClassifierInput,
+)
 
 
 RULE_BASED_CONFIDENCE = 1.0
@@ -43,14 +48,14 @@ class MetadataModelLoader:
     @staticmethod
     def load_model_from_path(collection, label_type, config_json=None):
         """
-            Set the pretrained models by loading them from the file system
-            Prerequisite: In order to use this, make sure that there is a pydantic settings file on the
-            at the root of this repository named "isamples_web_config.env" with the config file path, and the model path
-            defined
+        Set the pretrained models by loading them from the file system
+        Prerequisite: In order to use this, make sure that there is a pydantic settings file on the
+        at the root of this repository named "isamples_web_config.env" with the config file path, and the model path
+        defined
 
-            :param collection : the collection type of the sample
-            :param label_type : the field that we want to predict
-            :param config_json : passed config json, if not passed we use the default path set in the .env
+        :param collection : the collection type of the sample
+        :param label_type : the field that we want to predict
+        :param config_json : passed config json, if not passed we use the default path set in the .env
         """
         # load the model config file
         if not config_json:
@@ -62,10 +67,7 @@ class MetadataModelLoader:
                 config_path = config.Settings().opencontext_sample_config_path
             # read the model config file as json
             if not os.path.exists(config_path):
-                logging.error(
-                    "Unable to locate pretrained models at %s",
-                    config_path
-                )
+                logging.error("Unable to locate pretrained models at %s", config_path)
                 return
             with open(config_path) as json_file:
                 config_json = json.load(json_file)
@@ -83,11 +85,11 @@ class MetadataModelLoader:
     @staticmethod
     def get_sesar_material_model(config_json: Optional[dict] = None) -> Optional[Model]:
         """
-            Getter method that returns the SESAR material model
-            If the config of the model is passed, we can load the model directly reading the config_json values
-            Otherwise, use the default config path of the model and read the model config values to load the model
+        Getter method that returns the SESAR material model
+        If the config of the model is passed, we can load the model directly reading the config_json values
+        Otherwise, use the default config path of the model and read the model config values to load the model
 
-            :param config_json sesar material model config json in dict format
+        :param config_json sesar material model config json in dict format
         """
         if not MetadataModelLoader._SESAR_MATERIAL_MODEL:
             MetadataModelLoader.load_model_from_path("SESAR", "material", config_json)
@@ -96,18 +98,23 @@ class MetadataModelLoader:
     @staticmethod
     def get_oc_material_model(config_json: Optional[dict] = None) -> Optional[Model]:
         if not MetadataModelLoader._OPENCONTEXT_MATERIAL_MODEL:
-            MetadataModelLoader.load_model_from_path("OPENCONTEXT", "material", config_json)
+            MetadataModelLoader.load_model_from_path(
+                "OPENCONTEXT", "material", config_json
+            )
         return MetadataModelLoader._OPENCONTEXT_MATERIAL_MODEL
 
     @staticmethod
     def get_oc_sample_model(config_json: Optional[dict] = None) -> Optional[Model]:
         if not MetadataModelLoader._OPENCONTEXT_SAMPLE_MODEL:
-            MetadataModelLoader.load_model_from_path("OPENCONTEXT", "sample", config_json)
+            MetadataModelLoader.load_model_from_path(
+                "OPENCONTEXT", "sample", config_json
+            )
         return MetadataModelLoader._OPENCONTEXT_SAMPLE_MODEL
 
 
 class SESARMaterialPredictor:
     """Material label predictor of SESAR collection"""
+
     def __init__(self, model: Optional[Model]):
         if not model:
             raise TypeError("Model is required to be non-None")
@@ -137,16 +144,20 @@ class SESARMaterialPredictor:
         return True
 
     def check_invalid(self, field_to_value: dict) -> bool:
-        """Checks if the record is invalid (not a sample record)
-
-        """
+        """Checks if the record is invalid (not a sample record)"""
         if field_to_value["igsnPrefix"] != "":
             for test_igsn in SESARClassifierInput.SESAR_test_igsn:
                 if test_igsn in field_to_value["igsnPrefix"]:
-                    raise TestRecordException("Record excluded from indexing due to a known test igsnPrefix")
-        if field_to_value["sampleType"] == "Hole" or \
-                field_to_value["sampleType"] == "Site":
-            raise SESARSampleTypeException("Record excluded from indexing due to it being a known ignored sampleType")
+                    raise TestRecordException(
+                        "Record excluded from indexing due to a known test igsnPrefix"
+                    )
+        if (
+            field_to_value["sampleType"] == "Hole"
+            or field_to_value["sampleType"] == "Site"
+        ):
+            raise SESARSampleTypeException(
+                "Record excluded from indexing due to it being a known ignored sampleType"
+            )
         return False
 
     def classify_by_sample_type(self, field_to_value: dict) -> Optional[str]:
@@ -155,8 +166,10 @@ class SESARMaterialPredictor:
         If falls into any of the rules -> return defined label
         If it does not -> return None
         """
-        if "IODP" in field_to_value["cruiseFieldPrgrm"] or \
-                "ODP" in field_to_value["cruiseFieldPrgrm"]:
+        if (
+            "IODP" in field_to_value["cruiseFieldPrgrm"]
+            or "ODP" in field_to_value["cruiseFieldPrgrm"]
+        ):
             if "core" in field_to_value["sampleType"].lower():
                 return "Mixed soil, sediment, rock"
             if field_to_value["sampleType"] == "Individual Sample":
@@ -165,8 +178,10 @@ class SESARMaterialPredictor:
                 return "Rock"
         if "dredge" in field_to_value["sampleType"].lower():
             return "Natural Solid Material"
-        if field_to_value["primaryLocationType"] == "wetland" and \
-                "core" in field_to_value["sampleType"].lower():
+        if (
+            field_to_value["primaryLocationType"] == "wetland"
+            and "core" in field_to_value["sampleType"].lower()
+        ):
             return "Material"
         if field_to_value["sampleType"] == "U-channel":
             return "Sediment"
@@ -178,7 +193,7 @@ class SESARMaterialPredictor:
         return None
 
     def classify_by_rule(self, text: str, description_map: dict) -> Optional[str]:
-        """ Checks if the record can be classified by rule
+        """Checks if the record can be classified by rule
         If the record corresponds to a rule, returns the rule-defined label
         Else return None
         """
@@ -189,7 +204,7 @@ class SESARMaterialPredictor:
             "supplementMetadata_cruiseFieldPrgrm",
             "igsnPrefix",
             "description",
-            "supplementMetadata_primaryLocationType"
+            "supplementMetadata_primaryLocationType",
         ]
         # build a map that stores the fields that we are interested
         field_to_value = collections.defaultdict(str)
@@ -219,18 +234,16 @@ class SESARMaterialPredictor:
 
     @cache
     def classify_by_machine(self, text: str) -> List[Tuple[str, float]]:
-        """ Returns the machine prediction on the given
+        """Returns the machine prediction on the given
         input record
         """
         predictions = self._model.predict(text)
-        return [(
-            SESARClassifierInput.source_to_CV[label],
-            prob
-        ) for (label, prob) in predictions]
+        return [
+            (SESARClassifierInput.source_to_CV[label], prob)
+            for (label, prob) in predictions
+        ]
 
-    def predict_material_type(
-        self, source_record: dict
-    ) -> List[PredictionResult]:
+    def predict_material_type(self, source_record: dict) -> List[PredictionResult]:
         """
         Invoke the pre-trained BERT model to predict the material type label for the specified string inputs.
 
@@ -249,17 +262,23 @@ class SESARMaterialPredictor:
         if label:
             # map the label to iSamples CV
             label = SESARClassifierInput.source_to_CV[label]
-            return [PredictionResult(value=label, confidence=RULE_BASED_CONFIDENCE)]  # set sentinel value as probability
+            return [
+                PredictionResult(value=label, confidence=RULE_BASED_CONFIDENCE)
+            ]  # set sentinel value as probability
         else:
             # second pass : deriving the prediction by machine
             # we pass the text to a pretrained model to get the prediction result
             # predicted label is mapped to iSamples CV
             machine_predictions = self.classify_by_machine(input_string)
-            return [PredictionResult(value=label, confidence=prob) for label, prob in machine_predictions]
+            return [
+                PredictionResult(value=label, confidence=prob)
+                for label, prob in machine_predictions
+            ]
 
 
 class OpenContextMaterialPredictor:
     """Material label predictor of OpenContext collection"""
+
     def __init__(self, model: Optional[Model]):
         if not model:
             raise TypeError("Model is required to be non-None")
@@ -267,17 +286,13 @@ class OpenContextMaterialPredictor:
 
     @cache
     def classify_by_machine(self, text: str) -> List[Tuple[str, float]]:
-        """ Returns the machine prediction on the given
+        """Returns the machine prediction on the given
         input record
         """
         predictions = self._model.predict(text)
-        return [(
-            label, prob
-        ) for (label, prob) in predictions]
+        return [(label, prob) for (label, prob) in predictions]
 
-    def predict_material_type(
-        self, source_record: dict
-    ) -> List[PredictionResult]:
+    def predict_material_type(self, source_record: dict) -> List[PredictionResult]:
         """
         Invoke the pre-trained BERT model to predict the material type label for the specified string inputs.
         """
@@ -290,11 +305,15 @@ class OpenContextMaterialPredictor:
         # we pass the text to a pretrained model to get the prediction result
         # load the model
         machine_predictions = self.classify_by_machine(input_string)
-        return [PredictionResult(value=label, confidence=prob) for label, prob in machine_predictions]
+        return [
+            PredictionResult(value=label, confidence=prob)
+            for label, prob in machine_predictions
+        ]
 
 
 class OpenContextSamplePredictor:
     """Sample label predictor of OpenContext collection"""
+
     def __init__(self, model: Optional[Model]):
         if not model:
             raise TypeError("Model is required to be non-None")
@@ -302,17 +321,13 @@ class OpenContextSamplePredictor:
 
     @cache
     def classify_by_machine(self, text: str) -> List[Tuple[str, float]]:
-        """ Returns the machine prediction on the given
+        """Returns the machine prediction on the given
         input record
         """
         predictions = self._model.predict(text)
-        return [(
-            label, prob
-        ) for (label, prob) in predictions]
+        return [(label, prob) for (label, prob) in predictions]
 
-    def predict_sample_type(
-        self, source_record: dict
-    ) -> List[PredictionResult]:
+    def predict_sample_type(self, source_record: dict) -> List[PredictionResult]:
         """
         Invoke the pre-trained BERT model to predict the sample type label for the specified string inputs.
 
@@ -327,4 +342,7 @@ class OpenContextSamplePredictor:
         # we pass the text to a pretrained model to get the prediction result
         # load the model
         machine_predictions = self.classify_by_machine(input_string)
-        return [PredictionResult(value=label, confidence=prob) for label, prob in machine_predictions]
+        return [
+            PredictionResult(value=label, confidence=prob)
+            for label, prob in machine_predictions
+        ]

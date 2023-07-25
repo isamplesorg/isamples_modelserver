@@ -4,6 +4,7 @@ from abc import abstractmethod
 class ClassifierInput:
     """Takes thing object to convert it into data that the classifier
     requires as input"""
+
     def __init__(self, thing):
         self.thing = thing
         # fields to fill in through parsing the thing object

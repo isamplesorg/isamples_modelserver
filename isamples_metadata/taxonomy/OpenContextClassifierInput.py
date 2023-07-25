@@ -84,8 +84,7 @@ class OpenContextClassifierInput(ClassifierInput):
                 else:
                     for sub_key in value[0]:
                         if sub_key in description_field[key]:
-                            description_map[key + "_" + sub_key] = \
-                                value[0][sub_key]
+                            description_map[key + "_" + sub_key] = value[0][sub_key]
 
         # build the concatenated text from the description_map
         self.material_text = self.build_text(description_map, "material", field_order)

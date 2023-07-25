@@ -2,7 +2,7 @@ from isamples_metadata.taxonomy.metadata_models import (
     MetadataModelLoader,
     SESARMaterialPredictor,
     OpenContextMaterialPredictor,
-    OpenContextSamplePredictor
+    OpenContextSamplePredictor,
 )
 import pytest
 import json
@@ -16,9 +16,7 @@ SESAR_test_values = [
 
 @pytest.mark.parametrize("sesar_source_path", SESAR_test_values)
 def test_sesar_prediction_equal(sesar_source_path):
-    _test_sesar_material_model(
-        sesar_source_path
-    )
+    _test_sesar_material_model(sesar_source_path)
 
 
 def _test_sesar_material_model(sesar_source_path):
@@ -43,9 +41,9 @@ def _test_sesar_material_model(sesar_source_path):
             "Rock",
             "Sediment",
             "Soil",
-            "experimentalMaterial"
+            "experimentalMaterial",
         ],
-        "MAX_SEQUENCE_LEN": 256
+        "MAX_SEQUENCE_LEN": 256,
     }
     sesar_model = MetadataModelLoader.get_sesar_material_model(sesar_config)
     # load the model predictor
@@ -67,12 +65,8 @@ OpenContext_test_values = [
 
 @pytest.mark.parametrize("opencontext_source_path", OpenContext_test_values)
 def test_opencontext_prediction_equal(opencontext_source_path):
-    _test_opencontext_material_model(
-        opencontext_source_path
-    )
-    _test_opencontext_sample_model(
-        opencontext_source_path
-    )
+    _test_opencontext_material_model(opencontext_source_path)
+    _test_opencontext_sample_model(opencontext_source_path)
 
 
 def _test_opencontext_material_model(opencontext_source_path):
@@ -89,9 +83,9 @@ def _test_opencontext_material_model(opencontext_source_path):
             "mat:mineral",
             "mat:organicmaterial",
             "mat:otheranthropogenicmaterial",
-            "mat:rock"
+            "mat:rock",
         ],
-        "MAX_SEQUENCE_LEN": 256
+        "MAX_SEQUENCE_LEN": 256,
     }
     oc_model = MetadataModelLoader.get_oc_material_model(oc_material_config)
     # load the model predictor
@@ -125,9 +119,9 @@ def _test_opencontext_sample_model(opencontext_source_path):
             "tile",
             "utility item",
             "weapon",
-            "weight"
+            "weight",
         ],
-        "MAX_SEQUENCE_LEN": 256
+        "MAX_SEQUENCE_LEN": 256,
     }
     oc_model = MetadataModelLoader.get_oc_material_model(oc_sample_config)
     # load the model predictor

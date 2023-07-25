@@ -5,13 +5,10 @@ from transformers import BertTokenizer, BertForSequenceClassification
 class Model:
     def __init__(self, config):
         self.config = config
-        self.device = torch.device(
-            "cuda:0" if torch.cuda.is_available() else "cpu"
-        )
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.tokenizer = BertTokenizer.from_pretrained(self.config["BERT_MODEL"])
         classifier = BertForSequenceClassification.from_pretrained(
-            self.config["FINE_TUNED_MODEL"],
-            num_labels=len(self.config["CLASS_NAMES"])
+            self.config["FINE_TUNED_MODEL"], num_labels=len(self.config["CLASS_NAMES"])
         )
         classifier = classifier.eval()
         self.classifier = classifier.to(self.device)
@@ -21,7 +18,7 @@ class Model:
             text,
             max_length=self.config["MAX_SEQUENCE_LEN"],
             add_special_tokens=True,
-            padding='max_length',
+            padding="max_length",
             truncation=True,
             return_tensors="pt",
         )
