@@ -12,3 +12,4 @@ services:
 volumes:
     metadata_models:
         name: metadata_models
+        external: true
