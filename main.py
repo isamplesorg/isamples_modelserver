@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from enums import ISBModelType
 from isamples_metadata.taxonomy.isamplesfasttext import SMITHSONIAN_FEATURE_PREDICTOR
 from isamples_metadata.taxonomy.metadata_models import SampleTypePredictor, MaterialTypePredictor, PredictionResult, \
-    MetadataModelLoader, OpenContextSamplePredictor, OpenContextMaterialPredictor
+    MetadataModelLoader, OpenContextSamplePredictor, OpenContextMaterialPredictor, SESARMaterialPredictor
 
 app = fastapi.FastAPI()
 
@@ -30,14 +30,18 @@ def get_opencontext_material_type_predictor() -> MaterialTypePredictor:
     return OpenContextMaterialPredictor(ocs_model)
 
 
+def get_sesar_material_type_predictor() -> MaterialTypePredictor:
+    sesar_model = MetadataModelLoader.get_sesar_material_model()
+    return SESARMaterialPredictor(sesar_model)
+
+
 class PredictParams(BaseModel):
     source_record: dict
     type: ISBModelType
 
 
 @app.post("/opencontext", name="OpenContext Model Invocation")
-async def opencontext(request: fastapi.Request,
-                params: PredictParams,
+def opencontext(params: PredictParams,
                 sample_type_predictor: SampleTypePredictor = Depends(get_opencontext_sample_type_predictor),
                 material_type_predictor: MaterialTypePredictor = Depends(get_opencontext_material_type_predictor),
                 ) -> list[PredictionResult]:
@@ -49,14 +53,14 @@ async def opencontext(request: fastapi.Request,
         raise HTTPException(500, "Unable to serve specified model type. Valid types are 'sample' and 'material'.")
 
 
-@app.get("/sesar", name="SESAR Model Invocation")
-def sesar(type: Optional[ISBModelType] = None) -> str:
-    if type == ISBModelType.SAMPLE:
-        return "sample"
-    elif type == ISBModelType.MATERIAL:
-        return "material"
+@app.post("/sesar", name="SESAR Model Invocation")
+def sesar(params: PredictParams,
+          material_type_predictor: MaterialTypePredictor = Depends(get_sesar_material_type_predictor)
+          ) -> list[PredictionResult]:
+    if params.type == ISBModelType.MATERIAL:
+        return material_type_predictor.predict_material_type(params.source_record)
     else:
-        raise HTTPException(500, "Unable to serve specified model type. Valid types are 'sample' and 'material'.")
+        raise HTTPException(500, "Unable to serve specified model type. The only valid type is 'material'.")
 
 
 @app.get("/smithsonian", name="Smithsonian Model Invocation")
