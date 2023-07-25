@@ -3,7 +3,9 @@ import logging
 import json
 import os
 from functools import cache
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional, List, Protocol
+
+from pydantic import BaseModel
 
 from isamples_metadata.metadata_exceptions import TestRecordException, SESARSampleTypeException
 from isamples_metadata.taxonomy import config
@@ -15,16 +17,19 @@ from isamples_metadata.taxonomy.OpenContextClassifierInput import OpenContextCla
 RULE_BASED_CONFIDENCE = 1.0
 
 
-class PredictionResult:
-    """Class that represents the prediction result"""
-    def __init__(self, value: str, confidence: float):
-        """
-            Initialize the class values with the predicted label and probability logit value
-            :param value the predicted label
-            :param confidence the probability of the prediction
-        """
-        self.value = value
-        self.confidence = confidence
+class PredictionResult(BaseModel):
+    value: str = ""
+    confidence: float = 0.0
+
+
+class SampleTypePredictor(Protocol):
+    def predict_sample_type(self, source_record: dict) -> List[PredictionResult]:
+        return []
+
+
+class MaterialTypePredictor(Protocol):
+    def predict_material_type(self, source_record: dict) -> List[PredictionResult]:
+        return []
 
 
 class MetadataModelLoader:
@@ -244,13 +249,13 @@ class SESARMaterialPredictor:
         if label:
             # map the label to iSamples CV
             label = SESARClassifierInput.source_to_CV[label]
-            return [PredictionResult(label, RULE_BASED_CONFIDENCE)]  # set sentinel value as probability
+            return [PredictionResult(value=label, confidence=RULE_BASED_CONFIDENCE)]  # set sentinel value as probability
         else:
             # second pass : deriving the prediction by machine
             # we pass the text to a pretrained model to get the prediction result
             # predicted label is mapped to iSamples CV
             machine_predictions = self.classify_by_machine(input_string)
-            return [PredictionResult(label, prob) for label, prob in machine_predictions]
+            return [PredictionResult(value=label, confidence=prob) for label, prob in machine_predictions]
 
 
 class OpenContextMaterialPredictor:
@@ -285,7 +290,7 @@ class OpenContextMaterialPredictor:
         # we pass the text to a pretrained model to get the prediction result
         # load the model
         machine_predictions = self.classify_by_machine(input_string)
-        return [PredictionResult(label, prob) for label, prob in machine_predictions]
+        return [PredictionResult(value=label, confidence=prob) for label, prob in machine_predictions]
 
 
 class OpenContextSamplePredictor:
@@ -322,4 +327,4 @@ class OpenContextSamplePredictor:
         # we pass the text to a pretrained model to get the prediction result
         # load the model
         machine_predictions = self.classify_by_machine(input_string)
-        return [PredictionResult(label, prob) for label, prob in machine_predictions]
+        return [PredictionResult(value=label, confidence=prob) for label, prob in machine_predictions]

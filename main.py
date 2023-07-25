@@ -4,10 +4,13 @@ import fastapi
 import logging
 
 import uvicorn
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
+from pydantic import BaseModel
 
 from enums import ISBModelType
 from isamples_metadata.taxonomy.isamplesfasttext import SMITHSONIAN_FEATURE_PREDICTOR
+from isamples_metadata.taxonomy.metadata_models import SampleTypePredictor, MaterialTypePredictor, PredictionResult, \
+    MetadataModelLoader, OpenContextSamplePredictor, OpenContextMaterialPredictor
 
 app = fastapi.FastAPI()
 
@@ -17,12 +20,31 @@ def main():
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
-@app.get("/opencontext", name="OpenContext Model Invocation")
-def opencontext(type: Optional[ISBModelType] = None) -> str:
-    if type == ISBModelType.SAMPLE:
-        return "sample"
-    elif type == ISBModelType.MATERIAL:
-        return "material"
+def get_opencontext_sample_type_predictor() -> SampleTypePredictor:
+    ocs_model = MetadataModelLoader.get_oc_sample_model()
+    return OpenContextSamplePredictor(ocs_model)
+
+
+def get_opencontext_material_type_predictor() -> MaterialTypePredictor:
+    ocs_model = MetadataModelLoader.get_oc_sample_model()
+    return OpenContextMaterialPredictor(ocs_model)
+
+
+class PredictParams(BaseModel):
+    source_record: dict
+    type: ISBModelType
+
+
+@app.post("/opencontext", name="OpenContext Model Invocation")
+async def opencontext(request: fastapi.Request,
+                params: PredictParams,
+                sample_type_predictor: SampleTypePredictor = Depends(get_opencontext_sample_type_predictor),
+                material_type_predictor: MaterialTypePredictor = Depends(get_opencontext_material_type_predictor),
+                ) -> list[PredictionResult]:
+    if params.type == ISBModelType.SAMPLE:
+        return sample_type_predictor.predict_sample_type(params.source_record)
+    elif params.type == ISBModelType.MATERIAL:
+        return material_type_predictor.predict_material_type(params.source_record)
     else:
         raise HTTPException(500, "Unable to serve specified model type. Valid types are 'sample' and 'material'.")
 
