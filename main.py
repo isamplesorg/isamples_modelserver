@@ -1,5 +1,4 @@
 import json
-from typing import Type
 
 import fastapi
 import logging
@@ -12,7 +11,7 @@ from starlette.responses import PlainTextResponse
 
 from enums import ISBModelType
 from isamples_metadata.metadata_exceptions import SESARSampleTypeException, TestRecordException, MetadataException
-from isamples_metadata.taxonomy.isamplesfasttext import SMITHSONIAN_FEATURE_PREDICTOR, NOT_PROVIDED
+from isamples_metadata.taxonomy.isamplesfasttext import SMITHSONIAN_FEATURE_PREDICTOR
 from isamples_metadata.taxonomy.metadata_models import (
     SampleTypePredictor,
     MaterialTypePredictor,
