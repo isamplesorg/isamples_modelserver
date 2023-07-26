@@ -67,6 +67,7 @@ class ModelServerClient:
         url = f"{self.base_url}smithsonian"
         return self._make_json_request(url, params, rsession)
 
+
 def _assert_prediction_response(response):
     assert response is not None
     assert type(response) is list
@@ -81,6 +82,7 @@ def test_opencontext_material(
     response = modelserver_client.make_opencontext_material_request({"foo": "bar"}, rsession)
     _assert_prediction_response(response)
 
+
 def test_opencontext_sample(
     rsession: requests.Session,
     modelserver_client: ModelServerClient
@@ -88,12 +90,14 @@ def test_opencontext_sample(
     response = modelserver_client.make_opencontext_sample_request({"foo": "bar"}, rsession)
     _assert_prediction_response(response)
 
+
 def test_sesar_sample(
     rsession: requests.Session,
     modelserver_client: ModelServerClient
 ):
-    response = modelserver_client.make_sesar_material_request({"description":{"foo": "bar"}}, rsession)
+    response = modelserver_client.make_sesar_material_request({"description": {"foo": "bar"}}, rsession)
     _assert_prediction_response(response)
+
 
 def test_smithsonian_sampled_feature(
     rsession: requests.Session,
