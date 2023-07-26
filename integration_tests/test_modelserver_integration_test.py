@@ -57,11 +57,15 @@ class ModelServerClient:
     def make_opencontext_sample_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> Any:
         return self._make_opencontext_request(source_record, "sample", rsession)
 
-    def make_sesar_material_request(self, source_record: dict, type: str, rsession: requests.Session = requests.Session()) -> Any:
+    def make_sesar_material_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> Any:
         params: dict = {"source_record": source_record, "type": "material"}
         url = f"{self.base_url}sesar"
         return self._make_json_request(url, params, rsession)
 
+    def make_smithsonian_sampled_feature_request(self, input: list[str], rsession: requests.Session = requests.Session()) -> Any:
+        params: dict = {"input": input, "type": "context"}
+        url = f"{self.base_url}smithsonian"
+        return self._make_json_request(url, params, rsession)
 
 def _assert_prediction_response(response):
     assert response is not None
@@ -91,4 +95,10 @@ def test_sesar_sample(
     response = modelserver_client.make_sesar_material_request({"description":{"foo": "bar"}}, rsession)
     _assert_prediction_response(response)
 
-
+def test_smithsonian_sampled_feature(
+    rsession: requests.Session,
+    modelserver_client: ModelServerClient
+):
+    response = modelserver_client.make_smithsonian_sampled_feature_request(["foo"], rsession)
+    assert response is not None
+    assert type(response) is str
