@@ -4,9 +4,12 @@ import logging
 import uvicorn
 from fastapi import HTTPException, Depends
 from pydantic import BaseModel
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse
 
 from enums import ISBModelType
-from isamples_metadata.taxonomy.isamplesfasttext import SMITHSONIAN_FEATURE_PREDICTOR
+from isamples_metadata.metadata_exceptions import SESARSampleTypeException, TestRecordException
+from isamples_metadata.taxonomy.isamplesfasttext import SMITHSONIAN_FEATURE_PREDICTOR, NOT_PROVIDED
 from isamples_metadata.taxonomy.metadata_models import (
     SampleTypePredictor,
     MaterialTypePredictor,
@@ -19,6 +22,21 @@ from isamples_metadata.taxonomy.metadata_models import (
 )
 
 app = fastapi.FastAPI()
+
+
+SENTINEL_RESPONSE = PlainTextResponse('[{"value":"Not Provided","confidence":0.0}]', status_code=200)
+
+
+@app.exception_handler(SESARSampleTypeException)
+def sesar_sample_type_exception_handler(request: Request, exc: SESARSampleTypeException) -> PlainTextResponse:
+    # The model invocation code raises if a record should be excluded, return a sentinel so callers don't choke
+    return SENTINEL_RESPONSE
+
+
+@app.exception_handler(TestRecordException)
+def test_record_exception_handler(request: Request, exc: SESARSampleTypeException) -> PlainTextResponse:
+    # The model invocation code raises if a record should be excluded, return a sentinel so callers don't choke
+    return SENTINEL_RESPONSE
 
 
 def main():
