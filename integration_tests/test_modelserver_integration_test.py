@@ -57,8 +57,13 @@ class ModelServerClient:
     def make_opencontext_sample_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> Any:
         return self._make_opencontext_request(source_record, "sample", rsession)
 
+    def make_sesar_material_request(self, source_record: dict, type: str, rsession: requests.Session = requests.Session()) -> Any:
+        params: dict = {"source_record": source_record, "type": "material"}
+        url = f"{self.base_url}sesar"
+        return self._make_json_request(url, params, rsession)
 
-def _assert_opencontext_response(response):
+
+def _assert_prediction_response(response):
     assert response is not None
     assert type(response) is list
     assert type(response[0]["value"]) is str
@@ -70,13 +75,20 @@ def test_opencontext_material(
     modelserver_client: ModelServerClient
 ):
     response = modelserver_client.make_opencontext_material_request({"foo": "bar"}, rsession)
-    _assert_opencontext_response(response)
+    _assert_prediction_response(response)
 
 def test_opencontext_sample(
     rsession: requests.Session,
     modelserver_client: ModelServerClient
 ):
     response = modelserver_client.make_opencontext_sample_request({"foo": "bar"}, rsession)
-    _assert_opencontext_response(response)
+    _assert_prediction_response(response)
+
+def test_sesar_sample(
+    rsession: requests.Session,
+    modelserver_client: ModelServerClient
+):
+    response = modelserver_client.make_sesar_material_request({"description":{"foo": "bar"}}, rsession)
+    _assert_prediction_response(response)
 
 
