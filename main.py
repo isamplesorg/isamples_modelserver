@@ -1,3 +1,6 @@
+import json
+from typing import Type
+
 import fastapi
 import logging
 
@@ -8,7 +11,7 @@ from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 
 from enums import ISBModelType
-from isamples_metadata.metadata_exceptions import SESARSampleTypeException, TestRecordException
+from isamples_metadata.metadata_exceptions import SESARSampleTypeException, TestRecordException, MetadataException
 from isamples_metadata.taxonomy.isamplesfasttext import SMITHSONIAN_FEATURE_PREDICTOR, NOT_PROVIDED
 from isamples_metadata.taxonomy.metadata_models import (
     SampleTypePredictor,
@@ -24,19 +27,24 @@ from isamples_metadata.taxonomy.metadata_models import (
 app = fastapi.FastAPI()
 
 
-SENTINEL_RESPONSE = PlainTextResponse('[{"value":"Not Provided","confidence":0.0}]', status_code=200)
+def exception_response(exception: MetadataException) -> PlainTextResponse:
+    exception_classname = exception.__class__.__name__
+    exception_message = str(exception)
+    # http status code 409 is "Conflict".  Seemed most appropriate here.
+    json_str = json.dumps({"exception": exception_classname, "message": exception_message})
+    return PlainTextResponse(json_str, status_code=409)
 
 
 @app.exception_handler(SESARSampleTypeException)
 def sesar_sample_type_exception_handler(request: Request, exc: SESARSampleTypeException) -> PlainTextResponse:
     # The model invocation code raises if a record should be excluded, return a sentinel so callers don't choke
-    return SENTINEL_RESPONSE
+    return exception_response(SESARSampleTypeException)
 
 
 @app.exception_handler(TestRecordException)
 def test_record_exception_handler(request: Request, exc: SESARSampleTypeException) -> PlainTextResponse:
     # The model invocation code raises if a record should be excluded, return a sentinel so callers don't choke
-    return SENTINEL_RESPONSE
+    return exception_response(TestRecordException)
 
 
 def main():
