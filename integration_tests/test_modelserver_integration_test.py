@@ -5,6 +5,8 @@ import pytest
 import os
 import json
 
+from isamples_metadata.taxonomy.metadata_models import PredictionResult
+
 
 @pytest.fixture
 def rsession():
@@ -46,21 +48,25 @@ class ModelServerClient:
         response_dict = res.json()
         return response_dict
 
-    def _make_opencontext_request(self, source_record: dict, type: str, rsession: requests.Session = requests.Session()) -> Any:
+    @staticmethod
+    def _convert_to_prediction_result_list(result: Any) -> list[PredictionResult]:
+        return [PredictionResult(value=prediction_dict["value"], confidence=prediction_dict["confidence"]) for prediction_dict in result]
+
+    def _make_opencontext_request(self, source_record: dict, type: str, rsession: requests.Session = requests.Session()) -> list[PredictionResult]:
         params: dict = {"source_record": source_record, "type": type}
         url = f"{self.base_url}opencontext"
-        return self._make_json_request(url, params, rsession)
+        return ModelServerClient._convert_to_prediction_result_list(self._make_json_request(url, params, rsession))
 
-    def make_opencontext_material_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> Any:
+    def make_opencontext_material_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> list[PredictionResult]:
         return self._make_opencontext_request(source_record, "material", rsession)
 
-    def make_opencontext_sample_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> Any:
+    def make_opencontext_sample_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> list[PredictionResult]:
         return self._make_opencontext_request(source_record, "sample", rsession)
 
-    def make_sesar_material_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> Any:
+    def make_sesar_material_request(self, source_record: dict, rsession: requests.Session = requests.Session()) -> list[PredictionResult]:
         params: dict = {"source_record": source_record, "type": "material"}
         url = f"{self.base_url}sesar"
-        return self._make_json_request(url, params, rsession)
+        return ModelServerClient._convert_to_prediction_result_list(self._make_json_request(url, params, rsession))
 
     def make_smithsonian_sampled_feature_request(self, input: list[str], rsession: requests.Session = requests.Session()) -> Any:
         params: dict = {"input": input, "type": "context"}
@@ -71,8 +77,9 @@ class ModelServerClient:
 def _assert_prediction_response(response):
     assert response is not None
     assert type(response) is list
-    assert type(response[0]["value"]) is str
-    assert type(response[0]["confidence"]) is float
+    assert type(response[0]) is PredictionResult
+    assert type(response[0].value) is str
+    assert type(response[0].confidence) is float
 
 
 def test_opencontext_material(
