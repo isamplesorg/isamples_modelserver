@@ -1,4 +1,5 @@
 import json
+from typing import Type
 
 import fastapi
 import logging
@@ -26,7 +27,7 @@ from isamples_metadata.taxonomy.metadata_models import (
 app = fastapi.FastAPI()
 
 
-def exception_response(exception: MetadataException) -> PlainTextResponse:
+def exception_response(exception: Type[MetadataException]) -> PlainTextResponse:
     exception_classname = exception.__class__.__name__
     exception_message = str(exception)
     # http status code 409 is "Conflict".  Seemed most appropriate here.
