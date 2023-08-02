@@ -52,13 +52,25 @@ def main():
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
+@app.on_event("startup")
+def on_startup():
+    # Force load these into memory on app startup so we don't incur a lazy loading penalty on first request
+    print("Loading OpenContext sample model…")
+    MetadataModelLoader.get_oc_sample_model()
+    print("Loading OpenContext material model…")
+    MetadataModelLoader.get_oc_material_model()
+    print("Loading SESAR material model…")
+    MetadataModelLoader.get_sesar_material_model()
+    print("Loading done.")
+
+
 def get_opencontext_sample_type_predictor() -> SampleTypePredictor:
     ocs_model = MetadataModelLoader.get_oc_sample_model()
     return OpenContextSamplePredictor(ocs_model)
 
 
 def get_opencontext_material_type_predictor() -> MaterialTypePredictor:
-    ocs_model = MetadataModelLoader.get_oc_sample_model()
+    ocs_model = MetadataModelLoader.get_oc_material_model()
     return OpenContextMaterialPredictor(ocs_model)
 
 
