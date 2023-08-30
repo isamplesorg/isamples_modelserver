@@ -53,8 +53,8 @@ class OpenContextClassifierInput(ClassifierInput):
         """
         # define the informative fields to extract
         description_field = {
-            "Has type": ["label"],
-            "Consists of": ["label"],
+            "Has type": [],
+            "Consists of": [],
             "early bce/ce": [],
             "late bce/ce": [],
             "project label": [],
@@ -71,10 +71,10 @@ class OpenContextClassifierInput(ClassifierInput):
             if key in description_field:
                 # gold label fields
                 if key == "Has type":
-                    self.gold_sample = value[0]["label"]
+                    self.gold_sample = value[0]
 
                 elif key == "Consists of":
-                    self.gold_material = value[0]["label"]
+                    self.gold_material = value[0]
 
                 # fields that do not have subfields
                 if len(description_field[key]) == 0:
