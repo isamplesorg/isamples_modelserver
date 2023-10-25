@@ -36,6 +36,20 @@ docker compose up --build
 Once the app is running, the `metadata_models` directory should look like this:
 
 ```
-root@5d84ca6049f2:/app# ls metadata_models/
-OPENCONTEXT_material_config.json  OPENCONTEXT_sample_config.json  SESAR_material_config.json  models  opencontext-material  opencontext-sample	opencontext_categories.tsv  sampledFeature.bin	sesar-material	sesar_categories.tsv
+root@1b915258a2ba:/app/metadata_models# ls -la
+total 149520
+drwxrwxr-x 3 root   root       4096 Oct 25 23:32 .
+drwxr-xr-x 1 root   root       4096 Oct 25 23:15 ..
+-rwxr-xr-x 1 100216 10013       342 Dec 16  2022 OPENCONTEXT_material_config.json
+-rwxr-xr-x 1 100216 10013       238 Dec 16  2022 OPENCONTEXT_sample_config.json
+-rwxr-xr-x 1 100216 10013       421 Dec 16  2022 SESAR_material_config.json
+drwxr-xr-x 5 root   root       4096 Oct 25 23:34 models
+-rw-rw-r-- 1   1001  1001 153078525 Mar  4  2022 sampledFeature.bin
+root@1b915258a2ba:/app/metadata_models# ls -la models/
+total 20
+drwxr-xr-x 5 root   root  4096 Oct 25 23:34 .
+drwxrwxr-x 3 root   root  4096 Oct 25 23:32 ..
+drwxr-xr-x 2 100216 10013 4096 Dec 15  2022 opencontext-material
+drwxr-xr-x 2 100216 10013 4096 Jan 24  2023 opencontext-sample
+drwxr-xr-x 2 100216 10013 4096 Sep 23  2022 sesar-material
 ```
