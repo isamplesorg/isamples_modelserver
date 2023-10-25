@@ -31,3 +31,11 @@ Once this is done, you can simply start up the container like so:
 ```
 docker compose up --build
 ```
+
+## Volume contents
+Once the app is running, the `metadata_models` directory should look like this:
+
+```
+root@5d84ca6049f2:/app# ls metadata_models/
+OPENCONTEXT_material_config.json  OPENCONTEXT_sample_config.json  SESAR_material_config.json  models  opencontext-material  opencontext-sample	opencontext_categories.tsv  sampledFeature.bin	sesar-material	sesar_categories.tsv
+```
