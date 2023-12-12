@@ -1,8 +1,11 @@
+import faulthandler
 import json
 from typing import Type
 
 import fastapi
 import logging
+import atexit
+import traceback
 
 import uvicorn
 from fastapi import HTTPException, Depends
@@ -47,8 +50,15 @@ def test_record_exception_handler(request: Request, exc: SESARSampleTypeExceptio
     return exception_response(TestRecordException)
 
 
+def dump_stack_trace():
+    print("Dumping stack trace because the python interpreter was killed.")
+    traceback.print_stack()
+
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
+    faulthandler.enable()
+    atexit.register(dump_stack_trace)
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
@@ -62,6 +72,11 @@ def on_startup():
     print("Loading SESAR material model…")
     MetadataModelLoader.get_sesar_material_model()
     print("Loading done.")
+
+
+@app.on_event("shutdown")
+def on_shutdown():
+    traceback.print_stack()
 
 
 def get_opencontext_sample_type_predictor() -> SampleTypePredictor:
