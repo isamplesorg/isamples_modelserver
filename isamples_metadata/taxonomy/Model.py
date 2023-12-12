@@ -5,7 +5,12 @@ from transformers import BertTokenizer, BertForSequenceClassification
 class Model:
     def __init__(self, config):
         self.config = config
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        device_name = "cpu"
+        if torch.cuda.is_available():
+            device_name = "cuda:0"
+        elif torch.backends.mps.is_available():
+            device_name = "mps:0"
+        self.device = torch.device(device_name)
         self.tokenizer = BertTokenizer.from_pretrained(self.config["BERT_MODEL"])
         classifier = BertForSequenceClassification.from_pretrained(
             self.config["FINE_TUNED_MODEL"], num_labels=len(self.config["CLASS_NAMES"])
