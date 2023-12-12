@@ -59,7 +59,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
     faulthandler.enable()
     atexit.register(dump_stack_trace)
-    uvicorn.run("main:app", host="0.0.0.0", port=9000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
 @app.on_event("startup")
